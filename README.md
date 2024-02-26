@@ -18,7 +18,7 @@ API do Porjeto Finaças Pro
 - [Cadastrar Categoria](#cadastrar-categoria)
 - [Detalhes de Categoria](#detalhes-da-categaria)
 - [Apagar Categoria](#apagar-categoria)
-- Atualizar Categorias
+- [Atualizar Categorias](#apagar-categoria)
 
 ### Listar Categorias 
 
