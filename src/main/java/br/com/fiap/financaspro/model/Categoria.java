@@ -1,16 +1,19 @@
 package br.com.fiap.financaspro.model;
 
-import java.util.Random;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.Data;
 
 // imutavel
-public record Categoria(Long id, String nome, String icone) {
-    
-    public Categoria(Long id, String nome, String icone){
-        var key = (id == null)? Math.abs(new Random().nextLong()) : id;
-        this.id = key;
-        this.nome = nome;
-        this.icone = icone;     
-    }
+@Data
+@Entity
+public class Categoria {
+
+    @Id @GeneratedValue(strategy = GenerationType.AUTO) //  gerado automaticamente pelo banco de dados
+	private Long id;
+    private String nome;
+    private String icone;
 
 } 

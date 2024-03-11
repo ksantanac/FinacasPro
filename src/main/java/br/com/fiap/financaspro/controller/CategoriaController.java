@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.financaspro.model.Categoria;
+import br.com.fiap.financaspro.repository.CategoriaRepository;
 
 @RestController
 @RequestMapping("/categoria")
@@ -26,96 +28,97 @@ public class CategoriaController {
 
     Logger log = LoggerFactory.getLogger(getClass());
 
-    List<Categoria> repository = new ArrayList<>(); 
+    @Autowired  // Gere e entregue o objeto para ser usado
+    CategoriaRepository repository;
 
     @GetMapping
     //somente o método get ira funcionar e o path para ser /categoria, e a saida vai ser um json
     public List<Categoria> index() {
         // 1L = um Long
         // retornando uma Categoria
-        return repository;
+        return repository.findAll() ; //lista de categoria
     }
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public Categoria create(@RequestBody Categoria categoria){
         log.info("Cadastrando categoria {}", categoria);
-        repository.add(categoria);
+        repository.save(categoria);
         return categoria;
     }
 
-    @GetMapping("{id}")  
-    public ResponseEntity<Categoria> show(@PathVariable Long id){
-        log.info("buscando categoria por id {}", id);
+    // @GetMapping("{id}")  
+    // public ResponseEntity<Categoria> show(@PathVariable Long id){
+    //     log.info("buscando categoria por id {}", id);
 
-        for(Categoria categoria : repository){
-            if (categoria.id().equals(id)) 
-                return ResponseEntity.ok(categoria);
-        }
+    //     for(Categoria categoria : repository){
+    //         if (categoria.id().equals(id)) 
+    //             return ResponseEntity.ok(categoria);
+    //     }
         
-        // TODO Refactoring with stream
-        var categoriaEncontrada = repository
-            .stream()
-            .filter( c -> c.id().equals(id) )
-            .findFirst();
+    //     // TODO Refactoring with stream
+    //     var categoriaEncontrada = repository
+    //         .stream()
+    //         .filter( c -> c.id().equals(id) )
+    //         .findFirst();
 
-        if (categoriaEncontrada.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    //     if (categoriaEncontrada.isEmpty()) {
+    //         return ResponseEntity.notFound().build();
+    //     }
 
-        return ResponseEntity.ok(categoriaEncontrada.get());
+    //     return ResponseEntity.ok(categoriaEncontrada.get());
 
-    }
+    // }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Object> destroy(@PathVariable Long id){
-        log.info("apagando categoria");
+    // @DeleteMapping("{id}")
+    // public ResponseEntity<Object> destroy(@PathVariable Long id){
+    //     log.info("apagando categoria");
 
-        var categoriaEncontrada = getCategoriaByid(id);
+    //     var categoriaEncontrada = getCategoriaByid(id);
 
-        if (categoriaEncontrada.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    //     if (categoriaEncontrada.isEmpty()) {
+    //         return ResponseEntity.notFound().build();
+    //     }
         
-        repository.remove(categoriaEncontrada.get());
+    //     repository.remove(categoriaEncontrada.get());
         
-        return ResponseEntity.noContent().build();                
-    }
+    //     return ResponseEntity.noContent().build();                
+    // }
 
 
-    @PutMapping("{id}")
-    public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria categoria){
-        log.info("Atualizando categoria com id {} para {}", id, categoria);
-        // Buscar a catehoria
+    // @PutMapping("{id}")
+    // public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria categoria){
+    //     log.info("Atualizando categoria com id {} para {}", id, categoria);
+    //     // Buscar a catehoria
 
-        var categoriaEncontrada = getCategoriaByid(id);
+    //     var categoriaEncontrada = getCategoriaByid(id);
 
-        if (categoriaEncontrada.isEmpty())
-            return ResponseEntity.notFound().build();
+    //     if (categoriaEncontrada.isEmpty())
+    //         return ResponseEntity.notFound().build();
 
-        // Criar uma nova categoria com os novos dados
+    //     // Criar uma nova categoria com os novos dados
         
-        var categoriaAntiga = categoriaEncontrada.get();
-        var categoriaNova = new Categoria(id, categoria.nome(), categoria.icone());
+    //     var categoriaAntiga = categoriaEncontrada.get();
+    //     var categoriaNova = new Categoria(id, categoria.nome(), categoria.icone());
 
-        // apagar a categoria antiga
-        repository.remove(categoriaAntiga);
+    //     // apagar a categoria antiga
+    //     repository.remove(categoriaAntiga);
      
-       // add a categoria nova
-       repository.add(categoriaNova);
+    //    // add a categoria nova
+    //    repository.add(categoriaNova);
 
-       return ResponseEntity.ok(categoriaNova);
-    }
+    //    return ResponseEntity.ok(categoriaNova);
+    // }
 
 
 
-    private Optional<Categoria> getCategoriaByid(Long id) {
-        var categoriaEncontrada = repository
-            .stream()
-            .filter( c -> c.id().equals(id) )
-            .findFirst();
-        return categoriaEncontrada;
-    }
+    // private Optional<Categoria> getCategoriaByid(Long id) {
+    //     var categoriaEncontrada = repository
+    //         .stream()
+    //         .filter( c -> c.id().equals(id) )
+    //         .findFirst();
+    //     return categoriaEncontrada;
+    // }
 
     
 }
