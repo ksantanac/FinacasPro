@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +19,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.financaspro.model.Categoria;
 import br.com.fiap.financaspro.repository.CategoriaRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/categoria")
+@Slf4j
 public class CategoriaController {
 
-    Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired  // Gere e entregue o objeto para ser usado
     CategoriaRepository repository;
@@ -47,78 +50,50 @@ public class CategoriaController {
         return categoria;
     }
 
-    // @GetMapping("{id}")  
-    // public ResponseEntity<Categoria> show(@PathVariable Long id){
-    //     log.info("buscando categoria por id {}", id);
+    @GetMapping("{id}")  
+    public ResponseEntity<Categoria> show(@PathVariable Long id){
+        log.info("buscando categoria por id {}", id);
 
-    //     for(Categoria categoria : repository){
-    //         if (categoria.id().equals(id)) 
-    //             return ResponseEntity.ok(categoria);
-    //     }
+        return repository
+            .findById(id)
+            .map(ResponseEntity::ok) // refernece method
+            .orElse(ResponseEntity.notFound().build());
+
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Object> destroy(@PathVariable Long id){
+        log.info("apagando categoria");
+
+        verificarSeExisteCategoria(id);
         
-    //     // TODO Refactoring with stream
-    //     var categoriaEncontrada = repository
-    //         .stream()
-    //         .filter( c -> c.id().equals(id) )
-    //         .findFirst();
-
-    //     if (categoriaEncontrada.isEmpty()) {
-    //         return ResponseEntity.notFound().build();
-    //     }
-
-    //     return ResponseEntity.ok(categoriaEncontrada.get());
-
-    // }
-
-    // @DeleteMapping("{id}")
-    // public ResponseEntity<Object> destroy(@PathVariable Long id){
-    //     log.info("apagando categoria");
-
-    //     var categoriaEncontrada = getCategoriaByid(id);
-
-    //     if (categoriaEncontrada.isEmpty()) {
-    //         return ResponseEntity.notFound().build();
-    //     }
+        repository.deleteById(id);
         
-    //     repository.remove(categoriaEncontrada.get());
-        
-    //     return ResponseEntity.noContent().build();                
-    // }
+        return ResponseEntity.noContent().build();                
+    }
 
 
-    // @PutMapping("{id}")
-    // public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria categoria){
-    //     log.info("Atualizando categoria com id {} para {}", id, categoria);
-    //     // Buscar a catehoria
+    @PutMapping("{id}")
+    public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria categoria){
+        log.info("Atualizando categoria com id {} para {}", id, categoria);
+        // Buscar a categoria
 
-    //     var categoriaEncontrada = getCategoriaByid(id);
+        verificarSeExisteCategoria(id);
 
-    //     if (categoriaEncontrada.isEmpty())
-    //         return ResponseEntity.notFound().build();
+       categoria.setId(id);                               
+       repository.save(categoria);                                 
+       return ResponseEntity.ok(categoria);
 
-    //     // Criar uma nova categoria com os novos dados
-        
-    //     var categoriaAntiga = categoriaEncontrada.get();
-    //     var categoriaNova = new Categoria(id, categoria.nome(), categoria.icone());
-
-    //     // apagar a categoria antiga
-    //     repository.remove(categoriaAntiga);
-     
-    //    // add a categoria nova
-    //    repository.add(categoriaNova);
-
-    //    return ResponseEntity.ok(categoriaNova);
-    // }
+    }
 
 
-
-    // private Optional<Categoria> getCategoriaByid(Long id) {
-    //     var categoriaEncontrada = repository
-    //         .stream()
-    //         .filter( c -> c.id().equals(id) )
-    //         .findFirst();
-    //     return categoriaEncontrada;
-    // }
+    private void verificarSeExisteCategoria(Long id) {
+        repository
+        .findById(id)
+        .orElseThrow(() -> new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND, 
+                                        "Não existe categoria com o id informado. Consulte lista em /categoria"));
+    }
 
     
 }
