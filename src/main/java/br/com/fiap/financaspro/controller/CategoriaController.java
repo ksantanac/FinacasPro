@@ -1,12 +1,12 @@
 package br.com.fiap.financaspro.controller;
 
-import java.util.ArrayList;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CategoriaController {
 
+    Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired  // Gere e entregue o objeto para ser usado
     CategoriaRepository repository;
@@ -43,11 +44,10 @@ public class CategoriaController {
     }
 
     @PostMapping
-    @ResponseStatus(code = HttpStatus.CREATED)
-    public Categoria create(@RequestBody Categoria categoria){
-        log.info("Cadastrando categoria {}", categoria);
-        repository.save(categoria);
-        return categoria;
+    @ResponseStatus(CREATED)
+    public Categoria create(@RequestBody Categoria categoria) { // binding
+        log.info("cadastrando categoria {} ", categoria);
+        return repository.save(categoria);
     }
 
     @GetMapping("{id}")  
@@ -62,37 +62,32 @@ public class CategoriaController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> destroy(@PathVariable Long id){
+    @ResponseStatus(NO_CONTENT)
+    public void destroy(@PathVariable Long id) {
         log.info("apagando categoria");
 
         verificarSeExisteCategoria(id);
-        
+
         repository.deleteById(id);
-        
-        return ResponseEntity.noContent().build();                
     }
 
-
     @PutMapping("{id}")
-    public ResponseEntity<Categoria> update(@PathVariable Long id, @RequestBody Categoria categoria){
-        log.info("Atualizando categoria com id {} para {}", id, categoria);
-        // Buscar a categoria
+    public Categoria update (@PathVariable Long id, @RequestBody Categoria categoria) {
+        log.info("atualizando categoria com id {} para {}", id, categoria);
 
         verificarSeExisteCategoria(id);
 
-       categoria.setId(id);                               
-       repository.save(categoria);                                 
-       return ResponseEntity.ok(categoria);
-
+            categoria.setId(id);
+            return repository.save(categoria);
     }
 
 
-    private void verificarSeExisteCategoria(Long id) {
+     private void verificarSeExisteCategoria(Long id) {
         repository
         .findById(id)
         .orElseThrow(() -> new ResponseStatusException(
-                                        HttpStatus.NOT_FOUND, 
-                                        "Não existe categoria com o id informado. Consulte lista em /categoria"));
+            HttpStatus.NOT_FOUND, 
+            "Não existe categoria com o id informado. Consulte lista em /categoria"));
     }
 
     

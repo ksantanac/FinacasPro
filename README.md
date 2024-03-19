@@ -4,7 +4,7 @@ API do Porjeto Finaças Pro
 
 ## Requisitos
 
-- [ ] CRUD de categorias
+- [x] CRUD de categorias
 - [ ] CRUD de Movimentações
 - [ ] CRUD de Usuários
 - [ ] Autenticação
