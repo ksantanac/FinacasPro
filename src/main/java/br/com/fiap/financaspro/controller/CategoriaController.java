@@ -23,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.fiap.financaspro.model.Categoria;
 import br.com.fiap.financaspro.repository.CategoriaRepository;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -45,7 +46,7 @@ public class CategoriaController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public Categoria create(@RequestBody Categoria categoria) { // binding
+    public Categoria create(@RequestBody @Valid Categoria categoria) { // binding
         log.info("cadastrando categoria {} ", categoria);
         return repository.save(categoria);
     }
